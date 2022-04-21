@@ -1,38 +1,55 @@
-%include "syscall.mac" 
-SECTION .text 
+%include "syscall.mac"
+SECTION .text
 GLOBAL _start
 _start:
-mov eax, 7
-mov ecx, 0 
-cpuid
-mov eax, 7
-mov ecx, 0 
-cpuid
-mov eax, 1<<8 
-and eax, ebx 
-jz METKA_2
-WRITE BMI2, BMI2.len
-step_2: 
-mov eax, 7
-mov ecx, 0 
-cpuid
-mov eax, 1<<19
-and eax, ebx 
-jz METKA_3
-WRITE ADX, ADX.len 
-EXIT
-METKA_2:
-WRITE BMIBreak2, BMIBreak2.len 
-jmp step_2
-METKA_3:
-WRITE ADXBreak, ADXBreak.len 
-EXIT
+  mov eax, 7
+  mov ecx, 0
+  cpuid
+
+  and ebx, 00080000h
+  cmp ebx, 0  
+  je label_ADX_off
+  WRITE ADcX_on, ADcX_on.len
+  WRITE ADoX_on, ADoX_on.len
+  jmp label_toMulx
+
+label_ADX_off:
+  WRITE ADcX_off, ADcX_off.len
+  WRITE ADoX_off, ADoX_off.len
+
+label_toMulx:
+  mov eax, 7
+  mov ecx, 0
+  cpuid
+  and ebx, 00000100h
+  cmp ebx, 0
+  je label_BMI2_off
+  WRITE BMI2_on, BMI2_on.len
+  EXIT
+
+label_BMI2_off:
+  WRITE BMI2_off, BMI2_off.len
+  
+  EXIT
 SECTION .data
-BMI2: DB "BMI2 - ON", 0xA
-.len: EQU $ - BMI2
-BMIBreak2: DB "BMI2 - OFF", 0xA
-.len: EQU $ - BMIBreak2 
-ADX: DB "ADX - ON", 0xA
-.len: EQU $ - ADX
+ADcX_on: 
+  DB "adcx:  ON", 0xA
+  .len: EQU $ - ADcX_on
+ADcX_off: 
+  DB "adcx:  OFF", 0xA
+  .len: EQU $ - ADcX_off
+ADoX_on: 
+  DB "adox:  ON", 0xA
+  .len: EQU $ - ADoX_on
+ADoX_off: 
+  DB "adox:  OFF", 0xA
+  .len: EQU $ - ADoX_off
+BMI2_on: 
+  DB "MULX: ON", 0xA
+  .len: EQU $ - BMI2_on
+BMI2_off: 
+  DB "MULX:  OFF", 0xA
+  .len: EQU $ - BMI2_off
+
 ADXBreak: DB "ADX - OFF", 0xA
 .len: EQU $ - ADXBreak
