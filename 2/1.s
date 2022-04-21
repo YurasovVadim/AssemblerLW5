@@ -51,5 +51,3 @@ BMI2_off:
   DB "MULX:  OFF", 0xA
   .len: EQU $ - BMI2_off
 
-ADXBreak: DB "ADX - OFF", 0xA
-.len: EQU $ - ADXBreak
